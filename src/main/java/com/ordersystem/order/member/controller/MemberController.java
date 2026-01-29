@@ -51,7 +51,7 @@ public class MemberController extends BaseTimeEntity {
     }
 
     @GetMapping("/myinfo")
-    public ResponseEntity<?> myInfo(){
+    public ResponseEntity<?> myInfo(@AuthenticationPrincipal String principal){
         MemberDetailDto dto = memberService.myInfo();
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
