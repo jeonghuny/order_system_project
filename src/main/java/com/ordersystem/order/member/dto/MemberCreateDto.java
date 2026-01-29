@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class MemberCreateDto {
-    @NotBlank(message = "이메일이 비어있으면 안됩니다.");
+    @NotBlank(message = "이메일이 비어있으면 안됩니다.")
     private String email;
-    @NotBlank(message = "비밀번호가 비어있으면 안됩니다.");
+    @NotBlank(message = "비밀번호가 비어있으면 안됩니다.")
     private String password;
 
     public Member toEntity(String encordedPassword){
         return Member.builder()
                 .email(this.email)
-                .password(this.password)
+                .password(encordedPassword)
                 .build();
     }
 }
