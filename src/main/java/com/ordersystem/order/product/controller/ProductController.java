@@ -1,11 +1,28 @@
 package com.ordersystem.order.product.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.ordersystem.order.product.dto.ProductCreateDto;
+import com.ordersystem.order.product.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+    private ProductService productService;
 
+    @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
+    @GetMapping("/create")
+    public ResponseEntity<?> create(@RequestPart("product") @Valid ProductCreateDto dto,
+                                    @RequestPart("productImage")MultipartFile profileImage){
+        productService.save(dto, profileImage);
+        return ResponseEntity.status(HttpStatus.CREATED).body("ok");
+    }
 }
