@@ -13,11 +13,13 @@ import org.aspectj.lang.annotation.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/member")
@@ -45,6 +47,7 @@ public class MemberController extends BaseTimeEntity {
         return token;
     }
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<MemberListDto> findAll(@AuthenticationPrincipal String principal){
         List<MemberListDto> memberListDto = memberService.findAll();
         return memberListDto;
@@ -57,7 +60,9 @@ public class MemberController extends BaseTimeEntity {
     }
 
     @GetMapping("/detail/{id}")
-    public void findById(Long id){
-
+    @PreAuthorize("hasRole('ADMIN')")
+    public MemberDetailDto findById(@PathVariable Long id){
+         MemberDetailDto dto = memberService.findById(id);
+        return dto;
     }
 }

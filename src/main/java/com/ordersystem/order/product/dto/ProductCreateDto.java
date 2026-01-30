@@ -1,5 +1,6 @@
 package com.ordersystem.order.product.dto;
 
+import com.ordersystem.order.member.domain.Member;
 import com.ordersystem.order.product.domain.Product;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
@@ -19,14 +20,14 @@ public class ProductCreateDto {
     private String category;
     @Column(nullable = false)
     private Long stockQuantity;
-    private String productImage;
 
-    public Product toEntity(){
+    public Product toEntity(Member member){
         return Product.builder()
                 .name(this.name)
                 .price(this.price)
                 .category(this.category)
                 .stockQuantity(this.stockQuantity)
+                .member(member)
                 .build();
     }
 }

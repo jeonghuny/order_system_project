@@ -73,8 +73,12 @@ public class MemberService {
         return dto;
     }
 
-    public void findById(Long id){
-
+    @Transactional(readOnly = true)
+    public MemberDetailDto findById(Long id){
+        Optional<Member> optMember = memberRepository.findById(id);
+        Member member = optMember.orElseThrow(()-> new NoSuchElementException("entity is not found"));
+        MemberDetailDto dto = MemberDetailDto.fromEntity(member);
+        return dto;
     }
 
 }

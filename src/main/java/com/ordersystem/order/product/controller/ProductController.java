@@ -1,6 +1,7 @@
 package com.ordersystem.order.product.controller;
 
 import com.ordersystem.order.product.dto.ProductCreateDto;
+import com.ordersystem.order.product.dto.ProductDetailDto;
 import com.ordersystem.order.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,17 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<?> create(@RequestPart("product") @Valid ProductCreateDto dto,
-                                    @RequestPart("productImage")MultipartFile profileImage){
-        productService.save(dto, profileImage);
+                                    @RequestPart("productImage") MultipartFile productImage){
+        productService.save(dto, productImage);
         return ResponseEntity.status(HttpStatus.CREATED).body("ok");
+    }
+
+    @GetMapping("/detail/{id}")
+    public ProductDetailDto findById(@PathVariable Long id){
+        productService.findById(id);
+
+        return null;
     }
 }
