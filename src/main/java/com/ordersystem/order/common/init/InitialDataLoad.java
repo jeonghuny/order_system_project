@@ -1,4 +1,4 @@
-package com.ordersystem.order.member.common.init;
+package com.ordersystem.order.common.init;
 
 
 import com.ordersystem.order.member.domain.Member;

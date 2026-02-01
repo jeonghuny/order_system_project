@@ -1,7 +1,7 @@
 package com.ordersystem.order.member.domain;
 
 
-import com.ordersystem.order.member.common.domain.BaseTimeEntity;
+import com.ordersystem.order.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +14,7 @@ public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String email;
     private String password;
     private String name;

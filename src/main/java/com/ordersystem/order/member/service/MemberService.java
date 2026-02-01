@@ -1,84 +1,81 @@
 package com.ordersystem.order.member.service;
 import com.ordersystem.order.member.domain.Member;
 import com.ordersystem.order.member.dto.MemberCreateDto;
-import com.ordersystem.order.member.dto.MemberDetailDto;
-import com.ordersystem.order.member.dto.MemberListDto;
-import com.ordersystem.order.member.dto.MemberLoginDto;
+import com.ordersystem.order.member.dto.MemberLoginReqDto;
+import com.ordersystem.order.member.dto.MemberResDto;
 import com.ordersystem.order.member.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.S3Client;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class MemberService {
-
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Client s3Client;
+    @Value("${aws.s3.bucket1}")
+    private String bucket;
 
     @Autowired
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, S3Client s3Client){
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.s3Client = s3Client;
     }
-
-
-    public Member save(MemberCreateDto dto){
+    public Long save(MemberCreateDto dto){
         if(memberRepository.findByEmail(dto.getEmail()).isPresent()){
-            throw new IllegalArgumentException("entity is not found");
+            throw new IllegalArgumentException("이미 존재하는 email입니다.");
         }
         Member member = dto.toEntity(passwordEncoder.encode(dto.getPassword()));
         memberRepository.save(member);
-        return member;
+        return member.getId();
     }
 
-    public Member login(MemberLoginDto dto){
-        Optional<Member> optMember = memberRepository.findByEmail(dto.getEmail());
-        boolean flag = true;
-        if(!optMember.isPresent()){
-            flag = false;
-        }else{
-            if(!passwordEncoder.matches(dto.getPassword(), optMember.get().getPassword())){
-                flag = false;
+    @Transactional(readOnly = true)
+    public List<MemberResDto> findAll(){
+        return memberRepository.findAll().stream().map(a-> MemberResDto.fromEntity(a))
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional(readOnly = true)
+    public MemberResDto findById(Long id){
+        Optional<Member> optMember = memberRepository.findById(id);
+        Member member = optMember.orElseThrow(()-> new EntityNotFoundException("entity is not found"));
+        MemberResDto dto = MemberResDto.fromEntity(member);
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public MemberResDto myinfo(String email){
+        Optional<Member> optMember = memberRepository.findByEmail(email);
+        Member member = optMember.orElseThrow(()-> new EntityNotFoundException("entity is not found"));
+        MemberResDto dto = MemberResDto.fromEntity(member);
+        return dto;
+    }
+
+    public Member login(MemberLoginReqDto dto){
+        Optional<Member> opt_member = memberRepository.findByEmail(dto.getEmail());
+        boolean check = true;
+        if(!opt_member.isPresent()){
+            check=false;
+        }else {
+            if(!passwordEncoder.matches(dto.getPassword(), opt_member.get().getPassword())){
+                check =false;
             }
         }
-        if(!flag){
-            throw new IllegalArgumentException("이메일또는 비밀번호가 일치하지 않습니다.");
+        if(!check){
+            throw new IllegalArgumentException("email 또는 비밀번호가 일치하지 않습니다.");
         }
-        return optMember.get();
+        return opt_member.get();
     }
-
-    @Transactional(readOnly = true)
-    public List<MemberListDto> findAll(){
-        List<MemberListDto> memberListDtoList = memberRepository.findAll().stream().map(a->MemberListDto.fromEntity(a))
-                .collect(Collectors.toList());
-        return memberListDtoList;
-    }
-
-    @Transactional(readOnly = true)
-    public MemberDetailDto myInfo(){
-        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        Optional<Member> optMember = memberRepository.findByEmail(email);
-        Member member = optMember.orElseThrow(()->new NoSuchElementException("entity is not found"));
-        MemberDetailDto dto = MemberDetailDto.fromEntity(member);
-        return dto;
-    }
-
-    @Transactional(readOnly = true)
-    public MemberDetailDto findById(Long id){
-        Optional<Member> optMember = memberRepository.findById(id);
-        Member member = optMember.orElseThrow(()-> new NoSuchElementException("entity is not found"));
-        MemberDetailDto dto = MemberDetailDto.fromEntity(member);
-        return dto;
-    }
-
 }

@@ -1,7 +1,7 @@
-package com.ordersystem.order.member.common.configs;
+package com.ordersystem.order.common.configs;
 
-import com.ordersystem.order.member.common.auth.JwtTokenFilter;
-import com.ordersystem.order.member.common.exception.JwtAuthenticationHandler;
+import com.ordersystem.order.common.auth.JwtTokenFilter;
+import com.ordersystem.order.common.exception.JwtAuthenticationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,8 +47,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
 //                지정한 특정 url을 제외한 모든 요청에 대해서 authenticated(인증처리)하겠다 라는 의미.
                 .exceptionHandling(e->e.authenticationEntryPoint(jwtAuthenticationHandler))
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-//                .authorizeHttpRequests(a->a.requestMatchers("/member/create","/member/login").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(a->a.requestMatchers("/member/create","/member/doLogin","/product/list").permitAll().anyRequest().authenticated())
                 .build();
     }
 

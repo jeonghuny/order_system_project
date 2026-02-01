@@ -1,33 +1,28 @@
 package com.ordersystem.order.member.controller;
 
-import com.ordersystem.order.member.common.auth.JwtTokenProvider;
-import com.ordersystem.order.member.common.domain.BaseTimeEntity;
+import com.ordersystem.order.common.auth.JwtTokenProvider;
+import com.ordersystem.order.common.domain.BaseTimeEntity;
 import com.ordersystem.order.member.domain.Member;
 import com.ordersystem.order.member.dto.MemberCreateDto;
-import com.ordersystem.order.member.dto.MemberDetailDto;
-import com.ordersystem.order.member.dto.MemberListDto;
-import com.ordersystem.order.member.dto.MemberLoginDto;
+import com.ordersystem.order.member.dto.MemberLoginReqDto;
+import com.ordersystem.order.member.dto.MemberResDto;
+import com.ordersystem.order.member.dto.MemberLoginResDto;
 import com.ordersystem.order.member.service.MemberService;
 import jakarta.validation.Valid;
-import org.aspectj.lang.annotation.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/member")
-public class MemberController extends BaseTimeEntity {
-
+public class MemberController {
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
-
     @Autowired
     public MemberController(MemberService memberService, JwtTokenProvider jwtTokenProvider) {
         this.memberService = memberService;
@@ -35,34 +30,42 @@ public class MemberController extends BaseTimeEntity {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody @Valid MemberCreateDto dto){
-        Member member = memberService.save(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(member.getId());
+    public ResponseEntity<?> create(@RequestBody MemberCreateDto dto){
+        Long id = memberService.save(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
-    @PostMapping("/doLogin")
-    public String login(@RequestBody @Valid MemberLoginDto dto){
-        Member member = memberService.login(dto);
-        String token = jwtTokenProvider.createToken(member);
-        return token;
-    }
     @GetMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<MemberListDto> findAll(@AuthenticationPrincipal String principal){
-        List<MemberListDto> memberListDto = memberService.findAll();
-        return memberListDto;
-    }
-
-    @GetMapping("/myinfo")
-    public ResponseEntity<?> myInfo(@AuthenticationPrincipal String principal){
-        MemberDetailDto dto = memberService.myInfo();
-        return ResponseEntity.status(HttpStatus.OK).body(dto);
+    public List<MemberResDto> findAll(){
+        List<MemberResDto> dtoList = memberService.findAll();
+        return dtoList;
     }
 
     @GetMapping("/detail/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public MemberDetailDto findById(@PathVariable Long id){
-         MemberDetailDto dto = memberService.findById(id);
-        return dto;
+    public ResponseEntity<?> findById(@PathVariable Long id){
+        MemberResDto dto = memberService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
+
+    @GetMapping("/myinfo")
+    public ResponseEntity<?> myinfo(@AuthenticationPrincipal String email){
+        MemberResDto dto = memberService.myinfo(email);
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
+    }
+
+
+    @PostMapping("/doLogin")
+    public ResponseEntity<?> login(@RequestBody MemberLoginReqDto dto){
+        Member member = memberService.login(dto);
+        String accessToken = jwtTokenProvider.createToken(member);
+//        refresh생성
+        MemberLoginResDto memberLoginResDto = MemberLoginResDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(memberLoginResDto);
+    }
+
 }

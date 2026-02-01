@@ -1,4 +1,4 @@
-package com.ordersystem.order.member.common.domain;
+package com.ordersystem.order.common.domain;
 
 
 import jakarta.persistence.MappedSuperclass;

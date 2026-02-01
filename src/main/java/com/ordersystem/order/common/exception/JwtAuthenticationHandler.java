@@ -1,6 +1,6 @@
-package com.ordersystem.order.member.common.exception;
+package com.ordersystem.order.common.exception;
 
-import com.ordersystem.order.member.common.dto.CommonErrorDto;
+import com.ordersystem.order.common.dto.CommonErrorDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

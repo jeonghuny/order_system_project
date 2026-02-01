@@ -1,6 +1,6 @@
-package com.ordersystem.order.member.common.exception;
+package com.ordersystem.order.common.exception;
 
-import com.ordersystem.order.member.common.dto.CommonErrorDto;
+import com.ordersystem.order.common.dto.CommonErrorDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

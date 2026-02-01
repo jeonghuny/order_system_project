@@ -1,4 +1,4 @@
-package com.ordersystem.order.member.common.auth;
+package com.ordersystem.order.common.auth;
 
 
 import com.ordersystem.order.member.domain.Member;

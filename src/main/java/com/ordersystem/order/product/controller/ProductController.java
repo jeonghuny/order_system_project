@@ -1,7 +1,8 @@
 package com.ordersystem.order.product.controller;
 
 import com.ordersystem.order.product.dto.ProductCreateDto;
-import com.ordersystem.order.product.dto.ProductDetailDto;
+
+import com.ordersystem.order.product.dto.ProductResDto;
 import com.ordersystem.order.product.dto.ProductSearchDto;
 import com.ordersystem.order.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -12,35 +13,36 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController {
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestPart("product") @Valid ProductCreateDto dto,
-                                    @RequestPart("productImage") MultipartFile productImage){
-        productService.save(dto, productImage);
-        return ResponseEntity.status(HttpStatus.CREATED).body("ok");
-    }
-
-    @GetMapping("/detail/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id){
-        ProductDetailDto postDetailDto = productService.findById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(postDetailDto);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> create(@ModelAttribute ProductCreateDto productCreateDto){
+        Long id = productService.save(productCreateDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
     @GetMapping("/list")
-    public Page<ProductDetailDto> productDetailDtos(@PageableDefault(size=10 , sort="id", direction = Sort.Direction.DESC)
-                                                    Pageable pageable, @ModelAttribute ProductSearchDto searchDto){
-        return productService.findAll(pageable, searchDto);
+    public ResponseEntity<?> findAll(Pageable pageable, ProductSearchDto searchDto){
+        Page<ProductResDto> productResDtoList = productService.findAll(pageable, searchDto);
+        return ResponseEntity.status(HttpStatus.OK).body(productResDtoList);
+
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        ProductResDto productResDto = productService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(productResDto);
     }
 }

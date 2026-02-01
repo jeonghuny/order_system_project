@@ -6,18 +6,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class MemberDetailDto {
+public class MemberResDto {
     private Long id;
     private String name;
     private String email;
 
-    public static MemberDetailDto fromEntity(Member member){
-        return MemberDetailDto.builder()
+    public static MemberResDto fromEntity(Member member){
+        return MemberResDto.builder()
                 .id(member.getId())
                 .name(member.getName())
                 .email(member.getEmail())
