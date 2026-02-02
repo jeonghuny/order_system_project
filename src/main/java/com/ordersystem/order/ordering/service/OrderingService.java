@@ -43,6 +43,11 @@ public class OrderingService {
 
         for (OrderCreateDto dto : orderCreateDtoList){
             Product product = productRepository.findById(dto.getProductId()).orElseThrow(()->new EntityNotFoundException("entity is not found"));
+
+            if(product.getStockQuantity() < dto.getProductCount()){
+                throw new IllegalArgumentException("재고가 부족합니다.");
+            }
+            product.updateStockQuantity(dto.getProductCount());
             OrderDetail orderDetail = OrderDetail.builder()
                     .ordering(ordering)
                     .product(product)
