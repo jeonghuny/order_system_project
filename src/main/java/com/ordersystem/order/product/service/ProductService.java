@@ -56,19 +56,19 @@ public class ProductService {
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("member is not found"));
         Product product = productRepository.save(productCreateDto.toEntity(member));
         if(productCreateDto.getProductImage() != null){
-            String fileName = "product-"+product.getId()+"-"+productCreateDto.getProductImage().getOriginalFilename();
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(fileName)
-                    .contentType(productCreateDto.getProductImage().getContentType())
-                    .build();
-            try {
-                s3Client.putObject(request, RequestBody.fromBytes(productCreateDto.getProductImage().getBytes()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
-            product.updateProfileImageUrl(imgUrl);
+//            String fileName = "product-"+product.getId()+"-"+productCreateDto.getProductImage().getOriginalFilename();
+//            PutObjectRequest request = PutObjectRequest.builder()
+//                    .bucket(bucket)
+//                    .key(fileName)
+//                    .contentType(productCreateDto.getProductImage().getContentType())
+//                    .build();
+//            try {
+//                s3Client.putObject(request, RequestBody.fromBytes(productCreateDto.getProductImage().getBytes()));
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
+//            product.updateProfileImageUrl(imgUrl);
         }
         return product.getId();
     }
@@ -80,7 +80,7 @@ public class ProductService {
             public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicateList = new ArrayList<>();
                 if(searchDto.getProductName() != null){
-                    predicateList.add(criteriaBuilder.like(root.get("name"), "%" + searchDto.getProductName()+"%"));
+                    predicateList.add(criteriaBuilder.like(root.get("name"), "%"+searchDto.getProductName()+"%"));
                 }
                 if(searchDto.getCategory() != null){
                     predicateList.add(criteriaBuilder.equal(root.get("category"), searchDto.getCategory()));
@@ -94,7 +94,7 @@ public class ProductService {
             }
         };
         Page<Product> postList = productRepository.findAll(specification, pageable);
-        return postList.map(p-> ProductResDto.fromEntity(p));
+        return postList.map(p->ProductResDto.fromEntity(p));
     }
 
     @Transactional(readOnly = true)
@@ -102,8 +102,4 @@ public class ProductService {
         Product product = productRepository.findById(id).orElseThrow(()->new EntityNotFoundException("상품정보없음"));
         return ProductResDto.fromEntity(product);
     }
-
-
 }
-
-
