@@ -3,10 +3,7 @@ package com.ordersystem.order.member.controller;
 import com.ordersystem.order.common.auth.JwtTokenProvider;
 import com.ordersystem.order.common.domain.BaseTimeEntity;
 import com.ordersystem.order.member.domain.Member;
-import com.ordersystem.order.member.dto.MemberCreateDto;
-import com.ordersystem.order.member.dto.MemberLoginReqDto;
-import com.ordersystem.order.member.dto.MemberResDto;
-import com.ordersystem.order.member.dto.MemberLoginResDto;
+import com.ordersystem.order.member.dto.*;
 import com.ordersystem.order.member.service.MemberService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +57,26 @@ public class MemberController {
     public ResponseEntity<?> login(@RequestBody MemberLoginReqDto dto){
         Member member = memberService.login(dto);
         String accessToken = jwtTokenProvider.createToken(member);
-//        refresh생성
+//        refresh생성 및 저장
+        String refreshToken = jwtTokenProvider.createRtToken(member);
+        MemberLoginResDto memberLoginResDto = MemberLoginResDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(memberLoginResDto);
+    }
+
+    @PostMapping("/refresh-at")
+    public ResponseEntity<?> refreshAt(@RequestBody RefreshTokenDto dto){
+//        rt검증(1.토큰 자체 검증 2.redis조회 검증)
+        Member member = jwtTokenProvider.validateRt(dto.getRefreshToken());
+//        at신규 생성
+        String accessToken = jwtTokenProvider.createToken(member);
+//        refresh생성 및 저장
         MemberLoginResDto memberLoginResDto = MemberLoginResDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(null)
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(memberLoginResDto);
     }
-
 }
