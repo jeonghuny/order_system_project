@@ -1,5 +1,6 @@
 package com.ordersystem.order.ordering.service;
 
+import com.ordersystem.order.common.service.SseAlarmService;
 import com.ordersystem.order.member.domain.Member;
 import com.ordersystem.order.member.repository.MemberRepository;
 import com.ordersystem.order.ordering.domain.OrderDetail;
@@ -28,12 +29,14 @@ public class OrderingService {
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final SseAlarmService sseAlarmService;
 
-    public OrderingService(OrderingRepository orderingRepository, OrderDetailRepository orderDetailRepository, ProductRepository productRepository, MemberRepository memberRepository) {
+    public OrderingService(OrderingRepository orderingRepository, OrderDetailRepository orderDetailRepository, ProductRepository productRepository, MemberRepository memberRepository, SseAlarmService sseAlarmService) {
         this.orderingRepository = orderingRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.productRepository = productRepository;
         this.memberRepository = memberRepository;
+        this.sseAlarmService = sseAlarmService;
     }
 
     public Long create( List<OrderCreateDto> orderCreateDtoList){
@@ -56,6 +59,10 @@ public class OrderingService {
             ordering.getOrderDetailList().add(orderDetail);
         }
         orderingRepository.save(ordering);
+
+//        주문성공시 admin 유저에게 알림메시지 전송
+        String message = ordering.getId() + "번 주문이 들어왔습니다.";
+        sseAlarmService.sendMessage("admin@naver.com", email, message);
         return ordering.getId();
     }
 
