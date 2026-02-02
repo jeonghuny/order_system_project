@@ -87,7 +87,7 @@ public class JwtTokenProvider {
 //        rt토큰을 redis에 저장
 //        opsForValue : 일반 스트링 자료구조. opsForSet(또는 Zset 또는 List 등 존재)
 //        redisTemplate.opsForValue().set(member.getEmail(), token);
-        redisTemplate.opsForValue().set(member.getEmail(), token, 2, TimeUnit.MINUTES); // 3000분 ttl
+        redisTemplate.opsForValue().set(member.getEmail(), token, expirationRt, TimeUnit.MINUTES); // 3000분 ttl
         return token;
     }
 
