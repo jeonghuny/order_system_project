@@ -28,4 +28,7 @@ public class Product extends BaseTimeEntity {
         this.imagePath = url;
     }
 
+    public void updateStockQuantity(int orderQuantity){
+        this.stockQuantity = this.stockQuantity-orderQuantity;
+    }
 }
