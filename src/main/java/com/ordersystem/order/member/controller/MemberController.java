@@ -67,6 +67,7 @@ public class MemberController {
     }
 
     @PostMapping("/refresh-at")
+//    RT로 갱신할때는 바디로 가져옴
     public ResponseEntity<?> refreshAt(@RequestBody RefreshTokenDto dto){
 //        rt검증(1.토큰 자체 검증 2.redis조회 검증)
         Member member = jwtTokenProvider.validateRt(dto.getRefreshToken());
