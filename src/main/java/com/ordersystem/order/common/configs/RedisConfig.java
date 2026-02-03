@@ -1,5 +1,6 @@
 package com.ordersystem.order.common.configs;
 
+import com.ordersystem.order.common.service.SseAlarmService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -98,13 +99,15 @@ public class RedisConfig {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
         container.addMessageListener(messageListenerAdapter, new PatternTopic("order-channel"));
+//        만약에 여러 채널을 구독해야 하는 경우, 여러개의 PatternTopic을 add하거나, 별도의 Listener Bean 객체 생성
         return container;
     }
     
 //    redis에서 수신된 메시지를 처리하는 객체
     @Bean
     @Qualifier("ssePubSub")
-    public MessageListenerAdapter messageListenerAdapter(){
-        return new MessageListenerAdapter();
+    public MessageListenerAdapter messageListenerAdapter(SseAlarmService sseAlarmService){
+//        채널로부터 수신되는 message처리를 SseAlarmService의 onMessage메서드로 위임
+        return new MessageListenerAdapter(sseAlarmService, "onMessage");
     }
 }
