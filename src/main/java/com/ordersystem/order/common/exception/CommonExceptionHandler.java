@@ -1,6 +1,7 @@
 package com.ordersystem.order.common.exception;
 
 import com.ordersystem.order.common.dtos.CommonErrorDto;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice // responseBody는 딸려있음 (@ControllerAdvice + @ResponseBody)
+@Hidden //swagger에서 제외
 public class CommonExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> illegal(IllegalArgumentException e){
