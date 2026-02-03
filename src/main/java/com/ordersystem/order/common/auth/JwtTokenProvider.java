@@ -34,6 +34,7 @@ public class JwtTokenProvider {
     private final RedisTemplate<String , String> redisTemplate;
     private final MemberRepository memberRepository;
     @Autowired
+    // reInventory라는 이름으로 이름 붙여진 것 주입
     public JwtTokenProvider(@Qualifier("rtInventory") RedisTemplate<String, String> redisTemplate, MemberRepository memberRepository) {
         this.redisTemplate = redisTemplate;
         this.memberRepository = memberRepository;
