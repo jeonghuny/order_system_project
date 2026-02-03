@@ -47,7 +47,15 @@ public class SecurityConfig {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
 //                지정한 특정 url을 제외한 모든 요청에 대해서 authenticated(인증처리)하겠다 라는 의미.
                 .exceptionHandling(e->e.authenticationEntryPoint(jwtAuthenticationHandler))
-                .authorizeHttpRequests(a->a.requestMatchers("/member/create","/member/doLogin","/product/list", "/member/refresh-at").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(a->a.requestMatchers
+                        ("/member/create",
+                                "/member/doLogin",
+                                "/product/list",
+                                "/member/refresh-at",
+//                      swagger 사용을 위한 인증 예외 처리
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                 "/swagger-ui.html").permitAll().anyRequest().authenticated())
                 .build();
     }
 
