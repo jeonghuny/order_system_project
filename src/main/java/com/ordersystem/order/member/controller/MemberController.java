@@ -5,6 +5,7 @@ import com.ordersystem.order.common.domain.BaseTimeEntity;
 import com.ordersystem.order.member.domain.Member;
 import com.ordersystem.order.member.dto.*;
 import com.ordersystem.order.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,9 @@ public class MemberController {
     }
 
     @PostMapping("/create")
+    @Operation(
+            summary = "회원가입", description = "이메일, 비밀번호를 통한 회원가입"
+    )
     public ResponseEntity<?> create(@RequestBody MemberCreateDto dto){
         Long id = memberService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
