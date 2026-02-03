@@ -2,7 +2,10 @@ package com.ordersystem.order.common.service;
 
 import com.ordersystem.order.common.dtos.SseMessageDto;
 import com.ordersystem.order.common.repository.SseEmitterRegistry;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.Message;
+import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import tools.jackson.databind.ObjectMapper;
@@ -10,9 +13,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 @Component
-public class SseAlarmService {
+public class SseAlarmService implements MessageListener {
     private final SseEmitterRegistry sseEmitterRegistry;
     private final ObjectMapper objectMapper;
+
     @Autowired
     public SseAlarmService(SseEmitterRegistry sseEmitterRegistry, ObjectMapper objectMapper) {
         this.sseEmitterRegistry = sseEmitterRegistry;
@@ -29,10 +33,16 @@ public class SseAlarmService {
                 .build();
 
         try {
+            //DTO를 JSON 문자열로 변환
             String data = objectMapper.writeValueAsString(dto);
             sseEmitter.send(SseEmitter.event().name("ordered").data(data));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void onMessage(Message message, byte @Nullable [] pattern) {
+
     }
 }
