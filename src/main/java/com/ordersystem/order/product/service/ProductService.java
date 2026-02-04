@@ -14,11 +14,13 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,13 +44,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final S3Client s3Client;
+    private final RedisTemplate<String, String> redisTemplate;
+
     @Value("${aws.s3.bucket1}")
     private String bucket;
 
-    public ProductService(ProductRepository productRepository, MemberRepository memberRepository, S3Client s3Client) {
+    public ProductService(ProductRepository productRepository, MemberRepository memberRepository, S3Client s3Client, @Qualifier("stockInventory") RedisTemplate<String, String> redisTemplate) {
         this.productRepository = productRepository;
         this.memberRepository = memberRepository;
         this.s3Client = s3Client;
+        this.redisTemplate = redisTemplate;
     }
 
     public Long save(ProductCreateDto productCreateDto) {
@@ -56,20 +61,23 @@ public class ProductService {
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("member is not found"));
         Product product = productRepository.save(productCreateDto.toEntity(member));
         if(productCreateDto.getProductImage() != null){
-//            String fileName = "product-"+product.getId()+"-"+productCreateDto.getProductImage().getOriginalFilename();
-//            PutObjectRequest request = PutObjectRequest.builder()
-//                    .bucket(bucket)
-//                    .key(fileName)
-//                    .contentType(productCreateDto.getProductImage().getContentType())
-//                    .build();
-//            try {
-//                s3Client.putObject(request, RequestBody.fromBytes(productCreateDto.getProductImage().getBytes()));
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
-//            product.updateProfileImageUrl(imgUrl);
+            String fileName = "product-"+product.getId()+"-"+productCreateDto.getProductImage().getOriginalFilename();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileName)
+                    .contentType(productCreateDto.getProductImage().getContentType())
+                    .build();
+            try {
+                s3Client.putObject(request, RequestBody.fromBytes(productCreateDto.getProductImage().getBytes()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
+            product.updateProfileImageUrl(imgUrl);
         }
+
+//        동시성 문제 해결을 위한 상품등록시 redis에 재고세팅
+        redisTemplate.opsForValue().set(String.valueOf(product.getId()),String.valueOf(product.getStockQuantity()));
         return product.getId();
     }
 
