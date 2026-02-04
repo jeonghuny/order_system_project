@@ -30,7 +30,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         configuration.setDatabase(0);
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
 //    템플릿객체
@@ -55,7 +55,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         configuration.setDatabase(1);
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
     //    템플릿객체
@@ -76,7 +76,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
 //        redis pub/sub기능은 db에 값을 저장하는 기능이 아니므로, 특정 db에 의존적이지 않음.
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
     @Bean
@@ -111,3 +111,9 @@ public class RedisConfig {
         return new MessageListenerAdapter(sseAlarmService, "onMessage");
     }
 }
+
+
+//RedisConnectionFactory	    Redis랑 연결해주는 커넥션 공장 등록
+//RedisTemplate	                Redis를 사용하기 위한 작업 도구(템플릿) 빈 등록
+//RedisMessageListenerContainer	Redis Pub/Sub 구독 리스너 컨테이너 설정
+//MessageListenerAdapter	    Redis 메시지를 SseAlarmService에 연결하는 어댑터 설정
