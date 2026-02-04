@@ -4,6 +4,7 @@ import com.ordersystem.order.product.dto.ProductCreateDto;
 
 import com.ordersystem.order.product.dto.ProductResDto;
 import com.ordersystem.order.product.dto.ProductSearchDto;
+import com.ordersystem.order.product.dto.ProductUpdateDto;
 import com.ordersystem.order.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/product")
@@ -44,5 +50,11 @@ public class ProductController {
     public ResponseEntity<?> findById(@PathVariable Long id) {
         ProductResDto productResDto = productService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(productResDto);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @ModelAttribute ProductUpdateDto dto) {
+        productService.update(id, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
