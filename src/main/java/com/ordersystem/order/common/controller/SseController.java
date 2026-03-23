@@ -23,6 +23,7 @@ public class SseController {
     @GetMapping("/connect")
 //    싱글스레드로 객체 만들대 주의할것있음.
     public SseEmitter connect() throws IOException {
+        System.out.println("connect start");
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         SseEmitter sseEmitter = new SseEmitter(60*60*1000L); // 1시간 유효시간
         sseEmitterRegistry.addSseEmitter(email, sseEmitter);
@@ -35,6 +36,7 @@ public class SseController {
 
     @GetMapping("/disconnect")
     public void disconnect(String e) throws IOException {
+        System.out.println("disconnect start");
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         sseEmitterRegistry.removeEmitter(email);
     }

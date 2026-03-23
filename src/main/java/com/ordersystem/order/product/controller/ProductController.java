@@ -40,7 +40,7 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> findAll(Pageable pageable, ProductSearchDto searchDto){
+    public ResponseEntity<?> findAll(@PageableDefault(size = 10, sort = "id", direction= Sort.Direction.DESC) Pageable pageable, ProductSearchDto searchDto){
         Page<ProductResDto> productResDtoList = productService.findAll(pageable, searchDto);
         return ResponseEntity.status(HttpStatus.OK).body(productResDtoList);
 

@@ -29,7 +29,6 @@ public class JwtTokenFilter extends GenericFilter {
 
         String bearerToken =req.getHeader("Authorization");
 
-
         try {
             if (bearerToken == null) {
                 filterChain.doFilter(servletRequest, servletResponse);
@@ -49,7 +48,8 @@ public class JwtTokenFilter extends GenericFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }catch(Exception e){
-            e.printStackTrace();
+//            실제 에러가 아닌 요소들은 로그를 찍을 필요 없으므로 아래 로그는 주석처리
+//            e.printStackTrace();
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }

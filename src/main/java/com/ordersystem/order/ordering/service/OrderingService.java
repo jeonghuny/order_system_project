@@ -51,7 +51,11 @@ public class OrderingService {
     public Long create( List<OrderCreateDto> orderCreateDtoList){
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Member member = memberRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("member is not found"));
-        Ordering ordering = Ordering.builder().member(member).build();
+        Ordering ordering = Ordering.builder()
+                .member(member)
+                .build();
+
+        orderingRepository.save(ordering);
 
         for (OrderCreateDto dto : orderCreateDtoList){
 //             동시성제어방법2. select for update를 통한 락 설정 이후 조회
@@ -63,6 +67,7 @@ public class OrderingService {
             // 이 부분에서 원자성깨지는 문제가 있다. redis 싱글스레드를 통해 이슈 제어하려고 하는데 루아스크립트 뽑아줘
             String remain = redisTemplate.opsForValue().get(String.valueOf(dto.getProductId()));
             int remainQuantity = Integer.parseInt(remain);
+
             if(remainQuantity < dto.getProductCount()){
                 throw new IllegalArgumentException("재고가 부족합니다.");
             }else{
@@ -83,7 +88,6 @@ public class OrderingService {
 //            rdb동기화를 위한 작업2 : rabbitmq에 rdb 재고감소 메시지 발행
             rabbitmqStockService.publish(dto.getProductId(), dto.getProductCount());
         }
-        orderingRepository.save(ordering);
 
 //        주문성공시 admin 유저에게 알림메시지 전송
         String message = ordering.getId() + "번 주문이 들어왔습니다.";

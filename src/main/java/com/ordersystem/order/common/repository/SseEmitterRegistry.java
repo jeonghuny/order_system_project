@@ -17,6 +17,7 @@ public class SseEmitterRegistry {
     private Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
     public void addSseEmitter(String email, SseEmitter sseEmitter){
         this.emitterMap.put(email, sseEmitter);
+        System.out.println(this.emitterMap.size());
     }
 
     public SseEmitter getEmitter(String email){
@@ -25,5 +26,6 @@ public class SseEmitterRegistry {
 
     public void removeEmitter(String email){
         this.emitterMap.remove(email);
+        System.out.println(this.emitterMap.size());
     }
 }

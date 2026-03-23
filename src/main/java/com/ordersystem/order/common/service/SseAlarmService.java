@@ -43,7 +43,7 @@ public class SseAlarmService implements MessageListener {
 //            만약에 emitter객체가 현재 서버에 있으면, 바로 알림 발송, 그렇지 않으면, redis pub/sub 활용.
 //            분기 처리 (이게 멀티서버 핵심)
             if(sseEmitter != null){
-//                👉 바로 브라우저로 알림 전송 (Redis 안 거침 ⚡)
+//                👉 바로 브라우저로 알림 전송 (Redis 안 거침 )
                 sseEmitter.send(SseEmitter.event().name("ordered").data(data));
 //                사용자가 새로고침후에 알림메시지를 조회하려면 DB에 추가적으로 저장 필요.
             }else{
